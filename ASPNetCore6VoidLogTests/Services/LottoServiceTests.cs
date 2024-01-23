@@ -6,6 +6,7 @@ using ASPNetCore6VoidLog.Wrapper;
 using Moq;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Microsoft.Extensions.Logging;
 
 namespace ASPNetCore6VoidLog.Services.Tests
 {
@@ -26,19 +27,60 @@ namespace ASPNetCore6VoidLog.Services.Tests
             var mockDateTimeProvider = new Mock<IDateTimeProvider>();
             mockRandomGenerator.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(fixedValue);
             mockDateTimeProvider.Setup(d => d.GetCurrentTime()).Returns(today);
-            //
+            // [檔案系統]
             var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
                 {
                     { @"Extras/startup.txt", new MockFileData("傑士伯") },
                 }
             );
-
+            // [Logger]
+            var mockLogger = new Mock<ILogger<LottoService>>();
 
             // Act
-            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem);
+            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem, mockLogger.Object);
             var actual = target.Lottoing(0, 10);
 
             // Assert
+            //---------------
+            //LogInformation() 是擴充方法, 不能直接 Verify ! 
+            //---------------
+            //mockLogger.Verify(x => x.LogInformation(It.IsAny<string>()), Times.Once());
+
+            //---------------
+            //CS1593 delegate 'Func<Func<It.IsAnyType, Exception, string>, bool>' does not accept 3 arguments 
+            //---------------
+            //mockLogger.Verify(
+            //    x => x.Log(
+            //        LogLevel.Information, // Match the log level
+            //        It.IsAny<EventId>(), // Use It.IsAny for EventId
+            //        It.Is<It.IsAnyType>((v, t) => true), // Match any log message
+            //        It.IsAny<Exception>(), // Use It.IsAny for Exception
+            //        It.Is<Func<It.IsAnyType, Exception, string>>((v, e, f) => true)), // Match any Func delegate
+            //    Times.Once);
+
+            //---------------
+            //CS8620 因為參考型別的可 NULL 性有所差異，所以無法針對 'void ILogger.Log<IsAnyType>(LogLevel logLevel, EventId eventId, IsAnyType state, Exception? exception, Func<IsAnyType, Exception?, string> formatter)' 內類型 'Func<It.IsAnyType, Exception?, string>' 的參數 'formatter' 使用類型 'Func<It.IsAnyType, Exception, string>' 的引數。	
+            //---------------
+            //mockLogger.Verify(
+            //    x => x.Log(
+            //        LogLevel.Information, // Match the log level
+            //        It.IsAny<EventId>(), // Use It.IsAny for EventId
+            //        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("your expected log message")), // Match log message content
+            //        It.IsAny<Exception>(), // Use It.IsAny for Exception
+            //        It.IsAny<Func<It.IsAnyType, Exception, string>>() // Use It.IsAny for the message formatter Func
+            //    ),
+            //    Times.Once);
+
+            mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Information, // Match the log level
+                    It.IsAny<EventId>(), // Use It.IsAny for EventId
+                    It.Is<It.IsAnyType>((v, t) => true), // Match any log message
+                    It.IsAny<Exception?>(), // Use It.IsAny for Exception (nullable)
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>() // Use It.IsAny for the message formatter Func (nullable)
+                ),
+                Times.Once);
+
             expected.ShouldEqual(actual);
         }
 
@@ -57,17 +99,29 @@ namespace ASPNetCore6VoidLog.Services.Tests
             var mockDateTimeProvider = new Mock<IDateTimeProvider>();
             mockRandomGenerator.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(fixedValue);
             mockDateTimeProvider.Setup(d => d.GetCurrentTime()).Returns(today);
+            // [檔案系統]
             var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
                 {
                     { @"Extras/startup.txt", new MockFileData("傑士伯") },
                 }
             );
+            // [Logger]
+            var mockLogger = new Mock<ILogger<LottoService>>();
 
             // Act
-            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem);
+            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem, mockLogger.Object);
             var actual = target.Lottoing(0, 10);
 
             // Assert
+            mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Information, // Match the log level
+                    It.IsAny<EventId>(), // Use It.IsAny for EventId
+                    It.Is<It.IsAnyType>((v, t) => true), // Match any log message
+                    It.IsAny<Exception?>(), // Use It.IsAny for Exception (nullable)
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>() // Use It.IsAny for the message formatter Func (nullable)
+                ),
+                Times.Once);
             expected.ShouldEqual(actual);
         }
 
@@ -86,17 +140,29 @@ namespace ASPNetCore6VoidLog.Services.Tests
             var mockDateTimeProvider = new Mock<IDateTimeProvider>();
             mockRandomGenerator.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(fixedValue);
             mockDateTimeProvider.Setup(d => d.GetCurrentTime()).Returns(today);
+            // [檔案系統]
             var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
                 {
                     { @"Extras/startup.txt", new MockFileData("傑士伯") },
                 }
             );
+            // [Logger]
+            var mockLogger = new Mock<ILogger<LottoService>>();
 
             // Act
-            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem);
+            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem, mockLogger.Object);
             var actual = target.Lottoing(0, 10);
 
             // Assert
+            mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Critical, // Match the log level
+                    It.IsAny<EventId>(), // Use It.IsAny for EventId
+                    It.Is<It.IsAnyType>((v, t) => true), // Match any log message
+                    It.IsAny<Exception?>(), // Use It.IsAny for Exception (nullable)
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>() // Use It.IsAny for the message formatter Func (nullable)
+                ),
+                Times.Once);
             expected.ShouldEqual(actual);
         }
 
@@ -114,18 +180,30 @@ namespace ASPNetCore6VoidLog.Services.Tests
             var mockDateTimeProvider = new Mock<IDateTimeProvider>();
             mockRandomGenerator.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(fixedValue);
             mockDateTimeProvider.Setup(d => d.GetCurrentTime()).Returns(today);
+            // [檔案系統]
             var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
                 {
                     //只要不提供檔案路徑, 就會視為 FileNotFound Exception
                     //{ @"startup.txt", new MockFileData("傑士伯") },
                 }
             );
+            // [Logger]
+            var mockLogger = new Mock<ILogger<LottoService>>();
 
             // Act
-            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem);
+            var target = new LottoService(mockRandomGenerator.Object, mockDateTimeProvider.Object, mockFileSystem, mockLogger.Object);
             var actual = target.Lottoing(0, 10);
 
             // Assert
+            mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error, // Match the log level
+                    It.IsAny<EventId>(), // Use It.IsAny for EventId
+                    It.Is<It.IsAnyType>((v, t) => true), // Match any log message
+                    It.IsAny<Exception?>(), // Use It.IsAny for Exception (nullable)
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>() // Use It.IsAny for the message formatter Func (nullable)
+                ),
+                Times.Once);
             expected.ShouldEqual(actual);
         }
 
