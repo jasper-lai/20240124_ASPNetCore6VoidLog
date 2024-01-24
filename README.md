@@ -3,14 +3,14 @@ Unit Test for void method (Serilog package) in ASP.NET Core 6 MVC
 
 ## 前言
 
-接續前一篇 <a href="https://www.jasperstudy.com/2024/01/static-elements-system.html" target="_blank">樂透開獎(含日期限制)(含主辦人宣佈啟動開獎)</a> 的例子, 假設有一個新的需求:  "需要將開獎中的各次號碼及結果寫入Log記錄檔, 以供後續稽核".  
+接續前一篇 <a href="https://www.jasperstudy.com/2024/01/static-elements-system.html" target="_blank">樂透開獎(含日期限制)(含主辦人宣佈啟動開獎)</a> 的例子, 假設有一個新的需求:  "需要將開獎的各次號碼及結果寫入Log記錄檔, 以供後續稽核".  
 
 雖然 ASP.NET Core 有提供一個 ILogger 的實作, 但功能有限. (參考文件4..)  
 一般會採用 Serilog 套件, 但其相關的 Log method (例如: LogTrace, LogDebug ... 等), 都沒有回傳值 (void), 無法以回傳值模擬其結果, 那應該要如何建立測試呢?  
 
 關於 Serilog 的部份, 主要採 參考文件1..及2.. 方式進行演練及實作.  
 
-完整範例可由 GitHub 下載.   
+<a href="https://github.com/jasper-lai/20240124_ASPNetCore6VoidLog" target="_blank">完整範例可由 GitHub 下載.</a>   
 
 <!--more-->
 
